@@ -1,16 +1,18 @@
 package edu.esipe.i3.ezipflix.frontend;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.api.core.ApiFuture;
+import com.google.api.core.ApiFutureCallback;
+import com.google.api.core.ApiFutures;
+import com.google.api.gax.paging.Page;
+import com.google.api.gax.rpc.ApiException;
+import com.google.cloud.pubsub.v1.Publisher;
+import com.google.protobuf.ByteString;
+import com.google.pubsub.v1.ProjectTopicName;
+import com.google.pubsub.v1.PubsubMessage;
 import edu.esipe.i3.ezipflix.frontend.data.services.VideoConversion;
-import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.amqp.core.*;
-import org.springframework.amqp.rabbit.annotation.EnableRabbit;
-import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
-import org.springframework.amqp.rabbit.connection.ConnectionFactory;
-import org.springframework.amqp.rabbit.core.RabbitAdmin;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
@@ -23,13 +25,16 @@ import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
 /**
  * Created by Gilles GIRAUD gil on 11/4/17.
  */
 
 @SpringBootApplication
 @RestController
-@EnableRabbit
 @EnableWebSocket
 public class VideoDispatcher implements WebSocketConfigurer {
 
@@ -42,14 +47,6 @@ public class VideoDispatcher implements WebSocketConfigurer {
 
     //sudo rabbitmq-server start
     private static final Logger LOGGER = LoggerFactory.getLogger(VideoDispatcher.class);
-
-    @Value("${rabbitmq-server.credentials.username}") private String username;
-    @Value("${rabbitmq-server.credentials.password}") private String password;
-    @Value("${rabbitmq-server.credentials.vhost}") private String vhost;
-    @Value("${rabbitmq-server.server}") private String host;
-    @Value("${rabbitmq-server.port}") private String port;
-    @Value("${conversion.messaging.rabbitmq.conversion-queue}") public  String conversionQueue;
-    @Value("${conversion.messaging.rabbitmq.conversion-exchange}") public  String conversionExchange;
 
     @Autowired VideoConversion videoConversion;
     public static void main(String[] args) throws Exception {
@@ -64,21 +61,14 @@ public class VideoDispatcher implements WebSocketConfigurer {
                     consumes = MediaType.APPLICATION_JSON_VALUE,
                     produces = MediaType.APPLICATION_JSON_VALUE)
     public ConversionResponse requestConversion(@RequestBody ConversionRequest request) throws JsonProcessingException {
-        LOGGER.info("File = {}", request.getPath());
+        LOGGER.info("File = {}", request.getFilename());
+        LOGGER.info("Bucket = {}", request.getBucket());
         final ConversionResponse response = new ConversionResponse();
-        LOGGER.info("UUID = {}", response.getUuid().toString());
-        videoConversion.save(request, response);
+        if(videoConversion.fileExists(request.getFilename(), request.getBucket())) {
+            LOGGER.info("UUID = {}", response.getUuid().toString());
+            videoConversion.save(request, response);
+        }
         return response;
-    }
-
-
-    @Bean
-    ConnectionFactory connectionFactory() {
-        final CachingConnectionFactory c = new CachingConnectionFactory(host, Integer.parseInt(port));
-        c.setVirtualHost(vhost);
-        c.setUsername(username);
-        c.setPassword(password);
-        return c;
     }
 
     @Bean
@@ -89,29 +79,4 @@ public class VideoDispatcher implements WebSocketConfigurer {
     public void registerWebSocketHandlers(WebSocketHandlerRegistry webSocketHandlerRegistry) {
         webSocketHandlerRegistry.addHandler(videoStatusHandler(), "/video_status");
     }
-
-
-//    @Bean
-//    AmqpAdmin amqpAdmin() {
-//        RabbitAdmin rabbitAdmin = new RabbitAdmin(connectionFactory());
-//        q = rabbitAdmin.declareQueue(new Queue(conversionQueue));
-//        rabbitAdmin.declareExchange(new DirectExchange(conversionExchange));
-//        Binding binding = BindingBuilder.bind(new Queue(conversionQueue)).to(new DirectExchange(conversionExchange))
-//                .with(COMMANDS_QUEUE);
-//        rabbitAdmin.declareBinding(binding);
-//
-//        rabbitAdmin.setAutoStartup(true);
-//        return rabbitAdmin;
-//    }
-
-//    @Bean(name="video-conversion-template")
-//    public RabbitTemplate getVideoConversionTemplate() {
-//        RabbitTemplate template = new RabbitTemplate(connectionFactory());
-//
-//        template.setExchange(conversionExchange);
-//        template.setRoutingKey(conversionQueue);
-//        template.setQueue(conversionQueue);
-//        return template;
-//    }
-
 }

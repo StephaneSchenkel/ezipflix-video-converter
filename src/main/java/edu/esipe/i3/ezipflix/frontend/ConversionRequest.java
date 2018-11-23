@@ -7,17 +7,25 @@ import java.net.URI;
  */
 public class ConversionRequest {
 
-    private URI path;
+    private String filename;
+    private String bucket;
 
     public ConversionRequest() {
     }
-    public ConversionRequest(URI path) {
-        this.path = path;
+
+    public String getFilename() {
+        return filename;
     }
-    public URI getPath() {
-        return path;
+
+    public void setFilename(String filename) {
+        this.filename = filename;
     }
-    public void setPath(URI path) {
-        this.path = path;
+
+    public String getBucket() {
+        return bucket;
+    }
+
+    public void setBucket(String bucket) {
+        this.bucket = bucket;
     }
 }

@@ -17,16 +17,18 @@ import java.util.UUID;
 public class VideoConversions {
     @Id
     private String uuid;
-    private String originPath;
-    private String targetPath;
+    private String originFilename;
+    private String targetFilename;
+    private String bucket;
 
     public VideoConversions() {
     }
 
-    public VideoConversions(String uuid, String originPath, String targetPath) {
+    public VideoConversions(String uuid, String originFilename, String targetFilename, String bucket) {
         this.uuid = uuid;
-        this.originPath = originPath;
-        this.targetPath = targetPath;
+        this.originFilename = originFilename;
+        this.targetFilename = targetFilename;
+        this.bucket = bucket;
     }
 
     public String getUuid() {
@@ -37,28 +39,37 @@ public class VideoConversions {
         this.uuid = uuid;
     }
 
-    public String getOriginPath() {
-        return originPath;
+    public String getOriginFilename() {
+        return originFilename;
     }
 
-    public void setOriginPath(String originPath) {
-        this.originPath = originPath;
+    public void setOriginFilename(String originFilename) {
+        this.originFilename = originFilename;
     }
 
-    public String getTargetPath() {
-        return targetPath;
+    public String getTargetFilename() {
+        return targetFilename;
     }
 
-    public void setTargetPath(String targetPath) {
-        this.targetPath = targetPath;
+    public void setTargetFilename(String targetFilename) {
+        this.targetFilename = targetFilename;
+    }
+
+    public String getBucket() {
+        return bucket;
+    }
+
+    public void setBucket(String bucket) {
+        this.bucket = bucket;
     }
 
     public String toJson() throws JsonProcessingException {
         final ObjectMapper _mapper = new ObjectMapper();
         final Map<String, String> _map = new HashMap<String, String>();
         _map.put("id", uuid);
-        _map.put("originPath", originPath);
-        _map.put("targetPath", targetPath);
+        _map.put("originFilename", originFilename);
+        _map.put("targetFilename", targetFilename);
+        _map.put("bucket", bucket);
         byte [] _bytes = _mapper.writeValueAsBytes(_map);
         return new String(_bytes);
     }

@@ -1,7 +1,7 @@
 server :
   port : 42308
   ssl:
-    enabled: true
+    enabled: false
     key-store: "keystore.pkcs12"
     key-store-password: ezip
     keyStoreType: PKCS12
@@ -15,17 +15,6 @@ spring :
 
 conversion:
   messaging :
-    rabbitmq :
-      conversion-exchange: video-conversion-exchange
-      conversion-queue: video-conversion-queue
-
-rabbitmq-server:
-  server: localhost
-  port: 5672
-  credentials:
-    vhost: ezip         # sudo rabbitmqctl add_vhost ezip
-                        # sudo rabbitmqctl set_permissions -p ezip ezip ".*" ".*" ".*"
-    username: ezip      # sudo rabbitmqctl add_user ezip pize
-    password: pize
-
-
+    googlepubsub :
+      project-id: tp-ezipeflix-ss
+      topic-id: video-conversion-queue
