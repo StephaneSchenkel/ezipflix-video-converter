@@ -38,14 +38,6 @@ import java.util.concurrent.TimeUnit;
 @EnableWebSocket
 public class VideoDispatcher implements WebSocketConfigurer {
 
-    // rabbitmqadmin -H localhost -u ezip -p pize -V ezip delete queue name=video-conversion-queue
-    // rabbitmqadmin -H localhost -u ezip -p pize -V ezip delete exchange name=video-conversion-exchange
-    // sudo rabbitmqadmin -u ezip -p pize -V ezip declare exchange name=video-conversion-exchange type=direct
-    // sudo rabbitmqadmin -u ezip -p pize -V ezip declare queue name=video-conversion-queue durable=true
-    // sudo rabbitmqadmin -u ezip -p pize -V ezip declare binding source="video-conversion-exchange" destination_type="queue" destination="video-conversion-queue" routing_key="video-conversion-queue"
-    // MONGO : db.video_conversions.remove({})
-
-    //sudo rabbitmq-server start
     private static final Logger LOGGER = LoggerFactory.getLogger(VideoDispatcher.class);
 
     @Autowired VideoConversion videoConversion;

@@ -6,15 +6,11 @@ server :
     key-store-password: ezip
     keyStoreType: PKCS12
 
-spring :
-  data :
-    mongodb :
-      host : localhost
-      port : 27017
-      database : ezipflix
-
 conversion:
   messaging :
     googlepubsub :
       project-id: tp-ezipeflix-ss
       topic-id: video-conversion-queue
+  data:
+    google:
+      entity-name: video_conversion

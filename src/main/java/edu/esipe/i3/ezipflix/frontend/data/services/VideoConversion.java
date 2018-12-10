@@ -8,7 +8,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import edu.esipe.i3.ezipflix.frontend.ConversionRequest;
 import edu.esipe.i3.ezipflix.frontend.ConversionResponse;
 import edu.esipe.i3.ezipflix.frontend.data.entities.VideoConversions;
-import edu.esipe.i3.ezipflix.frontend.data.repositories.VideoConversionRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +21,9 @@ import java.util.List;
 @Service
 public class VideoConversion {
 
-    @Autowired VideoConversionRepository videoConversionRepository;
+    private static final Logger LOGGER = LoggerFactory.getLogger(VideoConversion.class);
+
+    @Autowired GoogleDatastoreService googleDatastoreService;
     @Autowired GooglePubSubService googlePubSubService;
 
     public void save(
@@ -33,10 +36,17 @@ public class VideoConversion {
                                                     "",
                                                     request.getBucket());
 
-//        videoConversionRepository.save(conversion);
+
+        if(!googleDatastoreService.isInitialized())
+            googleDatastoreService.initialize();
+        String id = String.valueOf(googleDatastoreService.save(conversion));
+
+        LOGGER.info("VideoConversions saved with id : " + id);
+
+        conversion.setUuid(id);
         if(!googlePubSubService.isInitialized())
-            googlePubSubService.Initialize();
-        googlePubSubService.Send(conversion.toJson());
+            googlePubSubService.initialize();
+        googlePubSubService.send(conversion.toJson());
     }
 
     public boolean fileExists(final String fileName, final String bucket){

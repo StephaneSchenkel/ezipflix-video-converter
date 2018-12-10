@@ -2,20 +2,14 @@ package edu.esipe.i3.ezipflix.frontend.data.entities;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
-
-import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 /**
  * Created by Gilles GIRAUD gil on 11/4/17.
  */
-@Document(collection = "video_conversions")
 public class VideoConversions {
-    @Id
+
     private String uuid;
     private String originFilename;
     private String targetFilename;

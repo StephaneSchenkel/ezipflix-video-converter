@@ -37,7 +37,7 @@ public class GooglePubSubService {
         return initialized;
     }
 
-    public void Initialize(){
+    public void initialize(){
         ProjectTopicName topicName = ProjectTopicName.of(projectId, topicId);
         try {
             publisher = Publisher.newBuilder(topicName).build();
@@ -47,7 +47,7 @@ public class GooglePubSubService {
         }
     }
 
-    public void Send(final String message){
+    public void send(final String message){
         ByteString data = ByteString.copyFromUtf8(message);
         PubsubMessage pubsubMessage = PubsubMessage.newBuilder().setData(data).build();
 
@@ -74,7 +74,7 @@ public class GooglePubSubService {
     }
 
     @PreDestroy
-    public void Cleanup(){
+    public void cleanup(){
         if(publisher != null){
             try {
                 publisher.shutdown();
